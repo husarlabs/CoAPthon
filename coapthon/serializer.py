@@ -187,7 +187,10 @@ class Serializer(object):
 
             # write option value
             if optionlength > 0:
-                opt_type = defines.OptionRegistry.LIST[option.number].value_type
+                if option.number in defines.OptionRegistry.LIST:
+                    opt_type = defines.OptionRegistry.LIST[option.number].value_type
+                else:
+                    opt_type = defines.STRING
                 if opt_type == defines.INTEGER:
                     words = Serializer.int_to_words(option.value, optionlength, 8)
                     for num in range(0, optionlength):

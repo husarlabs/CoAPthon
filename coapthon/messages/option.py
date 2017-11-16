@@ -1,4 +1,5 @@
 from coapthon import defines
+from coapthon.defines import UNKNOWN
 from coapthon.utils import byte_len
 
 __author__ = 'Giacomo Tanganelli'
@@ -43,7 +44,10 @@ class Option(object):
         """
         if type(self._value) is None:
             self._value = bytearray()
-        opt_type = defines.OptionRegistry.LIST[self._number].value_type
+        if self._number in defines.OptionRegistry.LIST.values():
+            opt_type = defines.OptionRegistry.LIST[self._number].value_type
+        else:
+            opt_type = UNKNOWN
         if opt_type == defines.INTEGER:
             if byte_len(self._value) > 0:
                 return int(self._value)
@@ -104,7 +108,10 @@ class Option(object):
         :rtype : String
         :return: the option name
         """
-        return defines.OptionRegistry.LIST[self._number].name
+        if self._number in defines.OptionRegistry.LIST.values():
+            return defines.OptionRegistry.LIST[self._number].name
+
+        return ""
 
     def __str__(self):
         """

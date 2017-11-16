@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import getopt
+import json
 import socket
 import sys
 
@@ -12,12 +13,13 @@ client = None
 
 
 def usage():  # pragma: no cover
-    print "Command:\tcoapclient.py -o -p [-P]"
+    print "Command:\tcoapclient.py -o -p [-P] -c"
     print "Options:"
     print "\t-o, --operation=\tGET|PUT|POST|DELETE|DISCOVER|OBSERVE"
     print "\t-p, --path=\t\t\tPath of the request"
     print "\t-P, --payload=\t\tPayload of the request"
     print "\t-f, --payload-file=\t\tFile with payload of the request"
+    print "\t-c, --custom-options=\t\tCustom request options"
 
 
 def client_callback(response):
@@ -54,9 +56,10 @@ def main():  # pragma: no cover
     op = None
     path = None
     payload = None
+    custom_options = None
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:", ["help", "operation=", "path=", "payload=",
-                                                               "payload_file="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:c:", ["help", "operation=", "path=", "payload=",
+                                                                 "payload_file=", "custom-options="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err)  # will print something like "option -a not recognized"
@@ -72,6 +75,8 @@ def main():  # pragma: no cover
         elif o in ("-f", "--payload-file"):
             with open(a, 'r') as f:
                 payload = f.read()
+        elif o in ("-c", "--custom-options"):
+            custom_options = json.loads(a)
         elif o in ("-h", "--help"):
             usage()
             sys.exit()
@@ -115,7 +120,7 @@ def main():  # pragma: no cover
             usage()
             sys.exit(2)
         client.observe(path, client_callback_observe)
-        
+
     elif op == "DELETE":
         if path is None:
             print "Path cannot be empty for a DELETE request"
@@ -133,7 +138,7 @@ def main():  # pragma: no cover
             print "Payload cannot be empty for a POST request"
             usage()
             sys.exit(2)
-        response = client.post(path, payload)
+        response = client.post(path, payload, custom_options=custom_options)
         print response.pretty_print()
         client.stop()
     elif op == "PUT":

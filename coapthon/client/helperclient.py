@@ -2,6 +2,9 @@ import random
 from multiprocessing import Queue
 from Queue import Empty
 import threading
+
+from coapthon.messages.option import Option
+
 from coapthon.messages.message import Message
 from coapthon import defines
 from coapthon.client.coap import CoAP
@@ -134,7 +137,7 @@ class HelperClient(object):
 
         return self.send_request(request, callback, timeout)
 
-    def post(self, path, payload, callback=None, timeout=None, **kwargs):  # pragma: no cover
+    def post(self, path, payload, callback=None, timeout=None, custom_options=None, **kwargs):  # pragma: no cover
         """
         Perform a POST on a certain path.
 
@@ -142,11 +145,18 @@ class HelperClient(object):
         :param payload: the request payload
         :param callback: the callback function to invoke upon response
         :param timeout: the timeout of the request
+        :param custom_options: custom request options
         :return: the response
         """
         request = self.mk_request(defines.Codes.POST, path)
         request.token = generate_random_token(2)
         request.payload = payload
+
+        for _, opt in enumerate(custom_options):
+            custom_option = Option()
+            custom_option.number = int(opt['number'])
+            custom_option.value = opt['value']
+            request.add_option(custom_option)
 
         for k, v in kwargs.iteritems():
             if hasattr(request, k):

@@ -1,3 +1,4 @@
+from coapthon.defines import UNKNOWN
 from coapthon.utils import parse_blockwise
 from coapthon import defines
 from coapthon.messages.option import Option
@@ -383,7 +384,10 @@ class Message(object):
         :raise TypeError: if the option is not repeatable and such option is already present in the message
         """
         assert isinstance(option, Option)
-        repeatable = defines.OptionRegistry.LIST[option.number].repeatable
+        if option.number in defines.OptionRegistry.LIST:
+            repeatable = defines.OptionRegistry.LIST[option.number].repeatable
+        else:
+            repeatable = UNKNOWN
         if not repeatable:
             ret = self._already_in(option)
             if ret:
@@ -508,8 +512,6 @@ class Message(object):
         """
         for option in self.options:
             if option.number == defines.OptionRegistry.OBSERVE.number:
-                # if option.value is None:
-                #    return 0
                 if option.value is None:
                     return 0
                 return option.value
