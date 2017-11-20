@@ -20,6 +20,7 @@ def usage():  # pragma: no cover
     print "\t-P, --payload=\t\tPayload of the request"
     print "\t-f, --payload-file=\t\tFile with payload of the request"
     print "\t-c, --custom-options=\t\tCustom request options"
+    print "\t-C, --content-type=\t\tContent type"
 
 
 def client_callback(response):
@@ -57,9 +58,11 @@ def main():  # pragma: no cover
     path = None
     payload = None
     custom_options = None
+    content_type = None
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:c:", ["help", "operation=", "path=", "payload=",
-                                                                 "payload_file=", "custom-options="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:p:P:f:c:C:", ["help", "operation=", "path=", "payload=",
+                                                                    "payload_file=", "custom-options=",
+                                                                    "content-type="])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err)  # will print something like "option -a not recognized"
@@ -77,6 +80,9 @@ def main():  # pragma: no cover
                 payload = f.read()
         elif o in ("-c", "--custom-options"):
             custom_options = json.loads(a)
+        elif o in ("-C", "--content-type"):
+            print a
+            content_type = a
         elif o in ("-h", "--help"):
             usage()
             sys.exit()
@@ -138,7 +144,7 @@ def main():  # pragma: no cover
             print "Payload cannot be empty for a POST request"
             usage()
             sys.exit(2)
-        response = client.post(path, payload, custom_options=custom_options)
+        response = client.post(path, payload, custom_options=custom_options, content_type=content_type)
         print response.pretty_print()
         client.stop()
     elif op == "PUT":
