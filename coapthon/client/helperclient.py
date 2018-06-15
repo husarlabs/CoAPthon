@@ -137,7 +137,7 @@ class HelperClient(object):
 
         return self.send_request(request, callback, timeout)
 
-    def post(self, path, payload, callback=None, timeout=None, custom_options=None, content_type=None, **kwargs):  # pragma: no cover
+    def post(self, path, payload, callback=None, timeout=None, custom_options=None, content_type=None, etag=None, **kwargs):  # pragma: no cover
         """
         Perform a POST on a certain path.
 
@@ -152,13 +152,17 @@ class HelperClient(object):
         request = self.mk_request(defines.Codes.POST, path)
         request.token = generate_random_token(2)
         request.payload = payload
-        request.content_type = content_type
+        if content_type != None:
+            request.content_type = content_type
+        if etag != None:
+            request.etag = etag
 
-        for _, opt in enumerate(custom_options):
-            custom_option = Option()
-            custom_option.number = int(opt['number'])
-            custom_option.value = opt['value']
-            request.add_option(custom_option)
+        if custom_options != None:
+            for _, opt in enumerate(custom_options):
+                custom_option = Option()
+                custom_option.number = int(opt['number'])
+                custom_option.value = opt['value']
+                request.add_option(custom_option)
 
         for k, v in kwargs.iteritems():
             if hasattr(request, k):
